@@ -192,6 +192,14 @@ class SwitchParser:
                         'state_address': '"{}"'.format(address)
                     }
                     data['sensor'].append(sensor)
+                if suffix.endswith('LEistung'):
+                    sensor = {
+                        'name': '"{}"'.format(name),
+                        'type': '"power"',
+                        'device_class': '"power"',
+                        'state_address': '"{}"'.format(address)
+                    }
+                    data['sensor'].append(sensor)
 
 
 class SensorParser:
