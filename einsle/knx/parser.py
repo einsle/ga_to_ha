@@ -174,6 +174,12 @@ class ClimateParser:
                         'state_address': '"{}"'.format(address)
                     }
                     data['sensor'].append(sensor)
+                if 'Zwangsstellung' == suffix:
+                    switch = {
+                        'name': '"{}"'.format(name),
+                        'address': '"{}"'.format(address),
+                    }
+                    data['switch'].append(switch)
 
 
 class SwitchParser:
