@@ -133,6 +133,12 @@ class ClimateParser:
                     dct['operation_mode_state_address'] = address
                 if 'Status Stellwert %' == suffix:
                     dct['command_value_state_address'] = address
+                    sensor = {
+                        'name': '"{}"'.format(name),
+                        'type': '"percent"',
+                        'state_address': '"{}"'.format(address)
+                    }
+                    data['sensor'].append(sensor)
                 if 'Störung' == suffix:
                     b_s = {
                         'name': '"{}"'.format(name),
@@ -192,7 +198,7 @@ class SwitchParser:
                         'state_address': '"{}"'.format(address)
                     }
                     data['sensor'].append(sensor)
-                if suffix.endswith('LEistung'):
+                if suffix.endswith('Leistung'):
                     sensor = {
                         'name': '"{}"'.format(name),
                         'type': '"power"',
