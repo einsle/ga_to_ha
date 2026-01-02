@@ -29,6 +29,7 @@ class LightingParser:
                 if 'Licht Status' == name.split('_')[1]:
                     b_s = {
                         'name': '"{}"'.format(name),
+                        'device_class': 'light',
                         'state_address': '"{}"'.format(address)
                     }
                     data['binary_sensor'].append(b_s)
