@@ -1,32 +1,63 @@
+import configparser
+
 from lxml import etree
 
 
-class LightingParser:
-    def parse(self, node: etree.Element, data: dict):
+class GenericParser:
+
+    def get_prefix(self, name: str):
+        """
+        get prefix (first parts split by _) of name
+
+        :param name: name to split into array and get first elements of
+        :return: first parts of name
+        """
+        return "_".join(name.split('_')[0:-1])
+
+    def get_suffix(self, name: str):
+        """
+        get suffix (last part split by _) of name
+
+        :param name: name to split into array and get last element of
+        :return: last part of name
+        """
+        return name.split('_')[-1]
+
+
+class LightingParser(GenericParser):
+    def parse(self, config: configparser.ConfigParser, node: etree.Element, data: dict):
+        """
+        parse lighting part of XML file and generate structured data
+
+        :param config: pointer to config options
+        :param node: parsex etree XML root node
+        :param data: data dict to fill parsed data into it
+        :return:
+        """
         for child in node.getchildren():
             for group_address in child.getchildren():
                 name = group_address.get('Name')
-                prefix = "_".join(name.split('_')[0:2])
-                suffix = "_".join(name.split('_')[2:])
+                prefix = self.get_prefix(name)
+                suffix = self.get_suffix(name)
                 address = group_address.get('Address')
                 dct = next((item for item in data['light'] if item['name'] == prefix), {'name': prefix})
-                if 'Schalten' == suffix:
+                if config.get('light', 'SuffixAddress') == suffix:
                     dct['address'] = address
                     data['light'].append(dct)
-                if 'Schalten Status' == suffix:
+                if config.get('light', 'SuffixStateAddress') == suffix:
                     dct['state_address'] = address
-                if 'Dimmen absolut' == suffix:
+                if config.get('light', 'SuffixBrightnessAddress') == suffix:
                     dct['brightness_address'] = address
-                if 'Dimmen Status' == suffix:
+                if config.get('light', 'SuffixBrightnessStateAddress') == suffix:
                     dct['brightness_state_address'] = address
-                if 'Alarm' == suffix:
+                if config.get('light', 'SuffixProblem') == suffix:
                     b_s = {
                         'name': '"{}"'.format(name),
                         'device_class': 'problem',
                         'state_address': '"{}"'.format(address)
                     }
                     data['binary_sensor'].append(b_s)
-                if 'Licht Status' == name.split('_')[1]:
+                if config.get('light', 'SuffixLightState') == name.split('_')[1]:
                     b_s = {
                         'name': '"{}"'.format(name),
                         'device_class': 'light',
@@ -35,7 +66,7 @@ class LightingParser:
                     data['binary_sensor'].append(b_s)
 
 
-class CoverParser:
+class CoverParser(GenericParser):
     def parse(self, node: etree.Element, data: dict):
         for child in node.getchildren():
             for group_address in child.getchildren():
@@ -98,7 +129,7 @@ class CoverParser:
                     dct['position_state_address'] = address
 
 
-class ClimateParser:
+class ClimateParser(GenericParser):
     def parse(self, node: etree.Element, data: dict):
         for child in node.getchildren():
             for group_address in child.getchildren():
@@ -184,7 +215,7 @@ class ClimateParser:
                     data['switch'].append(switch)
 
 
-class SwitchParser:
+class SwitchParser(GenericParser):
     def parse(self, node: etree.Element, data: dict):
         for child in node.getchildren():
             for group_address in child.getchildren():
@@ -216,7 +247,7 @@ class SwitchParser:
                     data['sensor'].append(sensor)
 
 
-class SensorParser:
+class SensorParser(GenericParser):
     def parse(self, node: etree.Element, data: dict):
         for child in node.getchildren():
             for group_address in child.getchildren():

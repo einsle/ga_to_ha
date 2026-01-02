@@ -21,7 +21,7 @@ def main(config_file: str, in_xml_file: str):
         data['text'] = []
         for node in root.getchildren():
             if config.get('DEFAULT', 'NameLight') == node.get('Name'):
-                LightingParser().parse(node, data)
+                LightingParser().parse(config, node, data)
             if config.get('DEFAULT', 'NameCover') == node.get('Name'):
                 CoverParser().parse(node, data)
             if config.get('DEFAULT', 'NameClimate') == node.get('Name'):
