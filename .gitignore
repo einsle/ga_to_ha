@@ -2,3 +2,5 @@
 /Pipfile.lock
 __pycache__/
 *.py[cod]
+*.ini
+!configuration_example.ini

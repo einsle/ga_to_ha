@@ -1,10 +1,14 @@
+import configparser
+
 import typer
-from lxml import etree
+
 from einsle.knx.parser import *
 
 
-def main(file: str):
-    tree = etree.parse(file)
+def main(config_file: str, in_xml_file: str):
+    config = configparser.ConfigParser()
+    config.read(config_file)
+    tree = etree.parse(in_xml_file)
     root = tree.getroot()
     if len(root):
         data = dict()
@@ -16,15 +20,15 @@ def main(file: str):
         data['switch'] = []
         data['text'] = []
         for node in root.getchildren():
-            if "Beleuchtung" == node.get('Name'):
+            if config.get('DEFAULT', 'NameLight') == node.get('Name'):
                 LightingParser().parse(node, data)
-            if "Beschattung" == node.get('Name'):
+            if config.get('DEFAULT', 'NameCover') == node.get('Name'):
                 CoverParser().parse(node, data)
-            if "Heizung" == node.get('Name'):
+            if config.get('DEFAULT', 'NameClimate') == node.get('Name'):
                 ClimateParser().parse(node, data)
-            if "Verbraucher" == node.get('Name'):
+            if config.get('DEFAULT', 'NameSwitch') == node.get('Name'):
                 SwitchParser().parse(node, data)
-            if "Kontakte" == node.get('Name'):
+            if config.get('DEFAULT', 'NameSensor') == node.get('Name'):
                 SensorParser().parse(node, data)
         keys_list = list(data.keys())
         for key in keys_list:
