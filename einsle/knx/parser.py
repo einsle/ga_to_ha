@@ -22,6 +22,7 @@ class LightingParser:
                 if 'Alarm' == suffix:
                     b_s = {
                         'name': '"{}"'.format(name),
+                        'device_class': 'problem',
                         'state_address': '"{}"'.format(address)
                     }
                     data['binary_sensor'].append(b_s)
