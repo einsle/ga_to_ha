@@ -67,7 +67,7 @@ class LightingParser(GenericParser):
 
 
 class CoverParser(GenericParser):
-    def parse(self, node: etree.Element, data: dict):
+    def parse(self, config: configparser.ConfigParser, node: etree.Element, data: dict):
         for child in node.getchildren():
             for group_address in child.getchildren():
                 name = group_address.get('Name')
@@ -75,62 +75,31 @@ class CoverParser(GenericParser):
                 suffix = "_".join(name.split('_')[2:])
                 address = group_address.get('Address')
                 dct = next((item for item in data['cover'] if item['name'] == prefix), {'name': prefix})
-                if 'Fahren Auf/Ab' == suffix:
+                if config.get('cover', 'SuffixMoveLongAddress') == suffix:
                     dct['move_long_address'] = address
                     data['cover'].append(dct)
-                    if name.endswith('Oberlicht kippen_Fahren Auf/Ab'):
-                        dct['device_class'] = '"window"'
+                    if config.has_option('cover', 'CoverDeviceClass_{0}'.format(prefix).replace(' ', '_')):
+                        dct['device_class'] = config.get('cover', 'CoverDeviceClass_{0}'.format(prefix).replace(' ', '_'))
                     else:
-                        dct['device_class'] = '"shutter"'
-                    if name.startswith('Büro_Rollladen Nord'):
-                        dct['travelling_time_down'] = '36'
-                        dct['travelling_time_up'] = '36'
-                    if name.startswith('Büro_Rollladen Süd'):
-                        dct['travelling_time_down'] = '36'
-                        dct['travelling_time_up'] = '36'
-                    if name.startswith('Schlafen_Rollladen'):
-                        dct['travelling_time_down'] = '17'
-                        dct['travelling_time_up'] = '17'
-                    if name.startswith('WC_Rollladen'):
-                        dct['travelling_time_down'] = '17'
-                        dct['travelling_time_up'] = '17'
-                    if name.startswith('Bad_Rollladen'):
-                        dct['travelling_time_down'] = '17'
-                        dct['travelling_time_up'] = '17'
-                    if name.startswith('Speiß_Rollladen'):
-                        dct['travelling_time_down'] = '17'
-                        dct['travelling_time_up'] = '17'
-                    if name.startswith('Küche_Rollladen'):
-                        dct['travelling_time_down'] = '17'
-                        dct['travelling_time_up'] = '17'
-                    if name.startswith('Küche_Oberlicht_'):
-                        dct['travelling_time_down'] = '14'
-                        dct['travelling_time_up'] = '14'
-                    if name.startswith('Küche_Oberlicht kippen_'):
-                        dct['travelling_time_down'] = '15'
-                        dct['travelling_time_up'] = '15'
-                    if name.startswith('Essen_Rollladen Balkon'):
-                        dct['travelling_time_down'] = '26'
-                        dct['travelling_time_up'] = '28'
-                    if name.startswith('Essen_Rollladen Süd'):
-                        dct['travelling_time_down'] = '17'
-                        dct['travelling_time_up'] = '17'
-                    if name.startswith('Essen_Rollladen Mitte'):
-                        dct['travelling_time_down'] = '17'
-                        dct['travelling_time_up'] = '17'
-                    if name.startswith('Wohnen_Rollladen Nord'):
-                        dct['travelling_time_down'] = '17'
-                        dct['travelling_time_up'] = '17'
-                if 'Stopp' == suffix:
+                        dct['device_class'] = config.get('cover', 'CoverDeviceClass')
+                    if config.has_option('cover', 'CoverTravellingTimeUp_{0}'.format(prefix).replace(' ', '_')):
+                        dct['travelling_time_up'] = config.get('cover', 'CoverTravellingTimeUp_{0}'.format(prefix).replace(' ', '_'))
+                    else:
+                        dct['travelling_time_up'] = config.get('cover', 'CoverTravellingTimeUp')
+                    if config.has_option('cover', 'CoverTravellingTimeDown_{0}'.format(prefix).replace(' ', '_')):
+                        dct['travelling_time_down'] = config.get('cover', 'CoverTravellingTimeDown_{0}'.format(prefix).replace(' ', '_'))
+                    else:
+                        dct['travelling_time_down'] = config.get('cover', 'CoverTravellingTimeDown')
+                if config.get('cover', 'SuffixStopAddress') == suffix:
                     dct['stop_address'] = address
-                if 'Absolute Position' == suffix:
+                if config.get('cover', 'SuffixPositionAddress') == suffix:
                     dct['position_address'] = address
-                if 'Absolute Position Status' == suffix:
+                if config.get('cover', 'SuffixPositionStateAddress') == suffix:
                     dct['position_state_address'] = address
 
 
 class ClimateParser(GenericParser):
-    def parse(self, node: etree.Element, data: dict):
+    def parse(self, config: configparser.ConfigParser, node: etree.Element, data: dict):
         for child in node.getchildren():
             for group_address in child.getchildren():
                 name = group_address.get('Name')
@@ -216,7 +185,7 @@ class ClimateParser(GenericParser):
 
 
 class SwitchParser(GenericParser):
-    def parse(self, node: etree.Element, data: dict):
+    def parse(self, config: configparser.ConfigParser, node: etree.Element, data: dict):
         for child in node.getchildren():
             for group_address in child.getchildren():
                 name = group_address.get('Name')
@@ -248,7 +217,7 @@ class SwitchParser(GenericParser):
 
 
 class SensorParser(GenericParser):
-    def parse(self, node: etree.Element, data: dict):
+    def parse(self, config: configparser.ConfigParser, node: etree.Element, data: dict):
         for child in node.getchildren():
             for group_address in child.getchildren():
                 name = group_address.get('Name')

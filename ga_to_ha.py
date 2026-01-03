@@ -1,13 +1,36 @@
-import configparser
+from typing import Annotated
 
 import typer
-
+import codecs
 from einsle.knx.parser import *
 
+app = typer.Typer(help='Script to convert group address information out of ETS to home assistant.')
 
-def main(config_file: str, in_xml_file: str):
+
+@app.command()
+def main(
+        in_xml_file: Annotated[
+            str,
+            typer.Option(
+                help='Path to XML file exported from ETS'
+            )
+        ],
+        config_file: Annotated[
+            str,
+            typer.Option(
+                help='Path to config file to configure input',
+            )
+        ] = None):
+    """
+    Parses ETS generated XML file and generates home assistant knx configuration
+
+    :param in_xml_file: Path to XML file exported from ETS
+    :param config_file: Path to config file to configure input
+    :return:
+    """
     config = configparser.ConfigParser()
-    config.read(config_file)
+    with codecs.open(config_file, 'r', 'utf-8') as cfg_file:
+        config.read_file(cfg_file)
     tree = etree.parse(in_xml_file)
     root = tree.getroot()
     if len(root):
@@ -23,13 +46,13 @@ def main(config_file: str, in_xml_file: str):
             if config.get('DEFAULT', 'NameLight') == node.get('Name'):
                 LightingParser().parse(config, node, data)
             if config.get('DEFAULT', 'NameCover') == node.get('Name'):
-                CoverParser().parse(node, data)
+                CoverParser().parse(config, node, data)
             if config.get('DEFAULT', 'NameClimate') == node.get('Name'):
-                ClimateParser().parse(node, data)
+                ClimateParser().parse(config, node, data)
             if config.get('DEFAULT', 'NameSwitch') == node.get('Name'):
-                SwitchParser().parse(node, data)
+                SwitchParser().parse(config, node, data)
             if config.get('DEFAULT', 'NameSensor') == node.get('Name'):
-                SensorParser().parse(node, data)
+                SensorParser().parse(config, node, data)
         keys_list = list(data.keys())
         for key in keys_list:
             print('{0}:'.format(key))
@@ -42,4 +65,4 @@ def main(config_file: str, in_xml_file: str):
 
 
 if __name__ == '__main__':
-    typer.run(main)
+    app()
