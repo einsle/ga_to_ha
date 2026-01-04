@@ -40,28 +40,28 @@ class LightingParser(GenericParser):
                 prefix = self.get_prefix(name)
                 suffix = self.get_suffix(name)
                 address = group_address.get('Address')
-                dct = next((item for item in data['light'] if item['name'] == prefix), {'name': prefix})
+                dct = next((item for item in data['light'] if item['name'] == '"{0}"'.format(prefix)), {'name': '"{0}"'.format(prefix)})
                 if config.get('light', 'SuffixAddress') == suffix:
-                    dct['address'] = address
+                    dct['address'] = '"{0}"'.format(address)
                     data['light'].append(dct)
                 if config.get('light', 'SuffixStateAddress') == suffix:
-                    dct['state_address'] = address
+                    dct['state_address'] = '"{0}"'.format(address)
                 if config.get('light', 'SuffixBrightnessAddress') == suffix:
-                    dct['brightness_address'] = address
+                    dct['brightness_address'] = '"{0}"'.format(address)
                 if config.get('light', 'SuffixBrightnessStateAddress') == suffix:
-                    dct['brightness_state_address'] = address
+                    dct['brightness_state_address'] = '"{0}"'.format(address)
                 if config.get('light', 'SuffixProblem') == suffix:
                     b_s = {
-                        'name': '"{}"'.format(name),
-                        'device_class': 'problem',
-                        'state_address': '"{}"'.format(address)
+                        'name': '"{0}"'.format(name),
+                        'device_class': '"problem"',
+                        'state_address': '"{0}"'.format(address)
                     }
                     data['binary_sensor'].append(b_s)
                 if config.get('light', 'SuffixLightState') == name.split('_')[1]:
                     b_s = {
-                        'name': '"{}"'.format(name),
-                        'device_class': 'light',
-                        'state_address': '"{}"'.format(address)
+                        'name': '"{0}"'.format(name),
+                        'device_class': '"light"',
+                        'state_address': '"{0}"'.format(address)
                     }
                     data['binary_sensor'].append(b_s)
 
@@ -192,12 +192,12 @@ class SwitchParser(GenericParser):
                 prefix = "_".join(name.split('_')[0:2])
                 suffix = "_".join(name.split('_')[2:])
                 address = group_address.get('Address')
-                dct = next((item for item in data['switch'] if item['name'] == prefix), {'name': prefix})
+                dct = next((item for item in data['switch'] if item['name'] == '"{}"'.format(prefix)), {'name': '"{}"'.format(prefix)})
                 if 'Schalten' == suffix:
-                    dct['address'] = address
+                    dct['address'] = '"{}"'.format(address)
                     data['switch'].append(dct)
                 if 'Schalten Status' == suffix:
-                    dct['state_address'] = address
+                    dct['state_address'] = '"{}"'.format(address)
                 if suffix.endswith('Stromwert'):
                     sensor = {
                         'name': '"{}"'.format(name),
