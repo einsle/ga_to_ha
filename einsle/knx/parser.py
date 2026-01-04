@@ -106,9 +106,9 @@ class ClimateParser(GenericParser):
                 prefix = "_".join(name.split('_')[0:2])
                 suffix = "_".join(name.split('_')[2:])
                 address = group_address.get('Address')
-                dct = next((item for item in data['climate'] if item['name'] == prefix), {'name': prefix})
-                if 'Ist-Temperatur' == suffix:
-                    dct['temperature_address'] = address
+                dct = next((item for item in data['climate'] if item['name'] == '"{0}"'.format(prefix)), {'name': '"{0}"'.format(prefix)})
+                if config.get('climate', 'SuffixTemperatureAddress') == suffix:
+                    dct['temperature_address'] = '"{0}"'.format(address)
                     data['climate'].append(dct)
                     sensor = {
                         'name': '"{}"'.format(name),
@@ -117,24 +117,24 @@ class ClimateParser(GenericParser):
                         'state_address': '"{}"'.format(address)
                     }
                     data['sensor'].append(sensor)
-                if 'Sollwert' == suffix:
-                    dct['target_temperature_address'] = address
-                if 'Sollwert Status' == suffix:
-                    dct['target_temperature_state_address'] = address
-                if 'Sollwertverschiebung' == suffix:
-                    dct['setpoint_shift_address'] = address
-                if 'Sollwertverschiebung Status' == suffix:
-                    dct['setpoint_shift_state_address'] = address
-                    dct['setpoint_shift_mode'] = '"DPT9002"'
-                    dct['temperature_step'] = '0.5'
-                    dct['setpoint_shift_max'] = '5'
-                    dct['setpoint_shift_min'] = '-5'
-                if 'Betriebsart' == suffix:
-                    dct['operation_mode_address'] = address
-                if 'Betriebsart Status' == suffix:
-                    dct['operation_mode_state_address'] = address
-                if 'Status Stellwert %' == suffix:
-                    dct['command_value_state_address'] = address
+                if config.get('climate', 'SuffixTargetTemperatureAddress') == suffix:
+                    dct['target_temperature_address'] = '"{0}"'.format(address)
+                if config.get('climate', 'SuffixTargetTemperatureStateAddress') == suffix:
+                    dct['target_temperature_state_address'] = '"{0}"'.format(address)
+                if config.get('climate', 'SuffixSetpointShiftAddress') == suffix:
+                    dct['setpoint_shift_address'] = '"{0}"'.format(address)
+                if config.get('climate', 'SuffixSetpointShiftStateAddress') == suffix:
+                    dct['setpoint_shift_state_address'] = '"{0}"'.format(address)
+                    dct['setpoint_shift_mode'] = '"{0}"'.format(config.get('climate', 'ClimateSetpointShiftMode'))
+                    dct['temperature_step'] = config.get('climate', 'ClimateTemperatureStep')
+                    dct['setpoint_shift_max'] = config.get('climate', 'ClimateSetpointShiftMax')
+                    dct['setpoint_shift_min'] = config.get('climate', 'ClimateSetpointShiftMin')
+                if config.get('climate', 'SuffixOperationModeAddress') == suffix:
+                    dct['operation_mode_address'] = '"{0}"'.format(address)
+                if config.get('climate', 'SuffixOperationModeStateAddress') == suffix:
+                    dct['operation_mode_state_address'] = '"{0}"'.format(address)
+                if config.get('climate', 'SuffixCommandValueStateAddress') == suffix:
+                    dct['command_value_state_address'] = '"{0}"'.format(address)
                     sensor = {
                         'name': '"{}"'.format(name),
                         'type': '"percent"',
