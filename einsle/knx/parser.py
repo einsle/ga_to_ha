@@ -71,17 +71,17 @@ class CoverParser(GenericParser):
         for child in node.getchildren():
             for group_address in child.getchildren():
                 name = group_address.get('Name')
-                prefix = "_".join(name.split('_')[0:2])
-                suffix = "_".join(name.split('_')[2:])
+                prefix = self.get_prefix(name)
+                suffix = self.get_suffix(name)
                 address = group_address.get('Address')
-                dct = next((item for item in data['cover'] if item['name'] == prefix), {'name': prefix})
+                dct = next((item for item in data['climate'] if item['name'] == '"{0}"'.format(prefix)), {'name': '"{0}"'.format(prefix)})
                 if config.get('cover', 'SuffixMoveLongAddress') == suffix:
-                    dct['move_long_address'] = address
+                    dct['move_long_address'] = '"{0}"'.format(address)
                     data['cover'].append(dct)
                     if config.has_option('cover', 'CoverDeviceClass_{0}'.format(prefix).replace(' ', '_')):
-                        dct['device_class'] = config.get('cover', 'CoverDeviceClass_{0}'.format(prefix).replace(' ', '_'))
+                        dct['device_class'] = '"{0}"'.format(config.get('cover', 'CoverDeviceClass_{0}'.format(prefix).replace(' ', '_')))
                     else:
-                        dct['device_class'] = config.get('cover', 'CoverDeviceClass')
+                        dct['device_class'] = '"{0}"'.format(config.get('cover', 'CoverDeviceClass'))
                     if config.has_option('cover', 'CoverTravellingTimeUp_{0}'.format(prefix).replace(' ', '_')):
                         dct['travelling_time_up'] = config.get('cover', 'CoverTravellingTimeUp_{0}'.format(prefix).replace(' ', '_'))
                     else:
@@ -91,11 +91,11 @@ class CoverParser(GenericParser):
                     else:
                         dct['travelling_time_down'] = config.get('cover', 'CoverTravellingTimeDown')
                 if config.get('cover', 'SuffixStopAddress') == suffix:
-                    dct['stop_address'] = address
+                    dct['stop_address'] = '"{0}"'.format(address)
                 if config.get('cover', 'SuffixPositionAddress') == suffix:
-                    dct['position_address'] = address
+                    dct['position_address'] = '"{0}"'.format(address)
                 if config.get('cover', 'SuffixPositionStateAddress') == suffix:
-                    dct['position_state_address'] = address
+                    dct['position_state_address'] = '"{0}"'.format(address)
 
 
 class ClimateParser(GenericParser):
@@ -103,8 +103,8 @@ class ClimateParser(GenericParser):
         for child in node.getchildren():
             for group_address in child.getchildren():
                 name = group_address.get('Name')
-                prefix = "_".join(name.split('_')[0:2])
-                suffix = "_".join(name.split('_')[2:])
+                prefix = self.get_prefix(name)
+                suffix = self.get_suffix(name)
                 address = group_address.get('Address')
                 dct = next((item for item in data['climate'] if item['name'] == '"{0}"'.format(prefix)), {'name': '"{0}"'.format(prefix)})
                 if config.get('climate', 'SuffixTemperatureAddress') == suffix:
@@ -141,18 +141,18 @@ class ClimateParser(GenericParser):
                         'state_address': '"{}"'.format(address)
                     }
                     data['sensor'].append(sensor)
-                if 'Störung' == suffix:
+                if config.get('climate', 'SuffixProblem') == suffix:
                     b_s = {
                         'name': '"{}"'.format(name),
                         'device_class': '"problem"',
                         'state_address': '"{}"'.format(address)
                     }
                     data['binary_sensor'].append(b_s)
-                if 'Diagnose' == suffix:
+                if config.get('climate', 'SuffixDiagnostics') == suffix:
                     text = {'name': '"{}"'.format(name),
                             'address': '"{}"'.format(address)}
                     data['text'].append(text)
-                if 'Humidity' == suffix:
+                if config.get('climate', 'SuffixHumidity') == suffix:
                     sensor = {
                         'name': '"{}"'.format(name),
                         'type': '"humidity"',
@@ -160,7 +160,7 @@ class ClimateParser(GenericParser):
                         'state_address': '"{}"'.format(address)
                     }
                     data['sensor'].append(sensor)
-                if 'Air Quality voc' == suffix:
+                if config.get('climate', 'SuffixAirQualityVoc') == suffix:
                     sensor = {
                         'name': '"{}"'.format(name),
                         'type': '"pulse_2byte"',
@@ -168,7 +168,7 @@ class ClimateParser(GenericParser):
                         'state_address': '"{}"'.format(address)
                     }
                     data['sensor'].append(sensor)
-                if 'Air Quality ppm' == suffix:
+                if config.get('climate', 'SuffixAirQualityPpm') == suffix:
                     sensor = {
                         'name': '"{}"'.format(name),
                         'type': '"ppm"',
@@ -176,7 +176,7 @@ class ClimateParser(GenericParser):
                         'state_address': '"{}"'.format(address)
                     }
                     data['sensor'].append(sensor)
-                if 'Zwangsstellung' == suffix:
+                if config.get('climate', 'SuffixForceState') == suffix:
                     switch = {
                         'name': '"{}"'.format(name),
                         'address': '"{}"'.format(address),
@@ -189,16 +189,16 @@ class SwitchParser(GenericParser):
         for child in node.getchildren():
             for group_address in child.getchildren():
                 name = group_address.get('Name')
-                prefix = "_".join(name.split('_')[0:2])
-                suffix = "_".join(name.split('_')[2:])
+                prefix = self.get_prefix(name)
+                suffix = self.get_suffix(name)
                 address = group_address.get('Address')
                 dct = next((item for item in data['switch'] if item['name'] == '"{}"'.format(prefix)), {'name': '"{}"'.format(prefix)})
-                if 'Schalten' == suffix:
+                if config.get('switch', 'SuffixAddress') == suffix:
                     dct['address'] = '"{}"'.format(address)
                     data['switch'].append(dct)
-                if 'Schalten Status' == suffix:
+                if config.get('switch', 'SuffixStateAddress') == suffix:
                     dct['state_address'] = '"{}"'.format(address)
-                if suffix.endswith('Stromwert'):
+                if suffix.endswith(config.get('switch', 'SuffixCurrent')):
                     sensor = {
                         'name': '"{}"'.format(name),
                         'type': '"current"',
@@ -206,7 +206,7 @@ class SwitchParser(GenericParser):
                         'state_address': '"{}"'.format(address)
                     }
                     data['sensor'].append(sensor)
-                if suffix.endswith('Leistung'):
+                if suffix.endswith(config.get('switch', 'SuffixPower')):
                     sensor = {
                         'name': '"{}"'.format(name),
                         'type': '"power"',
@@ -221,10 +221,14 @@ class SensorParser(GenericParser):
         for child in node.getchildren():
             for group_address in child.getchildren():
                 name = group_address.get('Name')
+                prefix = self.get_prefix(name)
+                suffix = self.get_suffix(name)
                 address = group_address.get('Address')
                 b_s = {
                     'name': '"{}"'.format(name),
-                    'device_class': '"window"',
+                    'device_class': '"{0}'.format(config.get('sensor', 'SensorDeviceClass')),
                     'state_address': '"{}"'.format(address)
                 }
+                if config.has_option('sensor', 'SensorDeviceClass_{0}'.format(prefix).replace(' ', '_')):
+                    b_s['device_class'] = config.get('cover', 'SensorDeviceClass_{0}'.format(prefix).replace(' ', '_'))
                 data['binary_sensor'].append(b_s)
